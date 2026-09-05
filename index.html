@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Study Assistant</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #eef2ff;
+      color: #222;
+    }
+
+    header {
+      background: #4f46e5;
+      color: white;
+      padding: 22px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    header p {
+      margin-bottom: 0;
+    }
+
+    .container {
+      max-width: 650px;
+      margin: 20px auto;
+      padding: 15px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      margin-bottom: 18px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px #bbb;
+    }
+
+    textarea {
+      width: 100%;
+      height: 170px;
+      padding: 12px;
+      border: 1px solid #aaa;
+      border-radius: 10px;
+      font-size: 16px;
+      resize: vertical;
+    }
+
+    button {
+      background: #4f46e5;
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      margin: 8px 5px 0 0;
+      border-radius: 10px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.85;
+    }
+
+    .result {
+      background: #f3f4f6;
+      padding: 15px;
+      margin-top: 15px;
+      border-radius: 10px;
+      line-height: 1.6;
+    }
+
+    .topic {
+      background: #eef2ff;
+      padding: 12px;
+      margin: 8px 0;
+      border-radius: 10px;
+    }
+
+    .question {
+      margin-bottom: 20px;
+    }
+
+    .question button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      background: #f3f4f6;
+      color: #222;
+    }
+
+    .question button.selected {
+      background: #c7d2fe;
+    }
+
+    #score {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #555;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>🤖 AI Study Assistant</h1>
+  <p>Smart learning tool for students</p>
+</header>
+
+<div class="container">
+
+  <!-- Notes -->
+  <div class="card">
+    <h2>📝 Study Notes</h2>
+
+    <textarea id="notes"
+      placeholder="Enter your CSE / AI & ML notes here..."></textarea>
+
+    <br>
+
+    <button onclick="generateSummary()">
+      ✨ Generate Summary
+    </button>
+
+    <button onclick="clearNotes()">
+      🗑️ Clear
+    </button>
+
+    <div id="summary" class="result">
+      Your summary will appear here.
+    </div>
+  </div>
+
+
+  <!-- Topics -->
+  <div class="card">
+    <h2>📚 AI & ML Topics</h2>
+
+    <div class="topic">🤖 Artificial Intelligence</div>
+    <div class="topic">🧠 Machine Learning</div>
+    <div class="topic">📊 Data Science</div>
+    <div class="topic">👁️ Computer Vision</div>
+    <div class="topic">💬 Natural Language Processing</div>
+  </div>
+
+
+  <!-- Quiz -->
+  <div class="card">
+    <h2>❓ AI & ML Quiz</h2>
+
+    <div class="question">
+      <p><b>1. What does AI stand for?</b></p>
+
+      <button onclick="answer(1, true, this)">
+        A. Artificial Intelligence
+      </button>
+
+      <button onclick="answer(1, false, this)">
+        B. Automatic Internet
+      </button>
+
+      <button onclick="answer(1, false, this)">
+        C. Advanced Information
+      </button>
+    </div>
+
+
+    <div class="question">
+      <p><b>2. What is a part of AI?</b></p>
+
+      <button onclick="answer(2, true, this)">
+        A. Machine Learning
+      </button>
+
+      <button onclick="answer(2, false, this)">
+        B. Calculator
+      </button>
+
+      <button onclick="answer(2, false, this)">
+        C. Keyboard
+      </button>
+    </div>
+
+
+    <div class="question">
+      <p><b>3. ML learns mainly from?</b></p>
+
+      <button onclick="answer(3, true, this)">
+        A. Data
+      </button>
+
+      <button onclick="answer(3, false, this)">
+        B. Electricity
+      </button>
+
+      <button onclick="answer(3, false, this)">
+        C. Keyboard
+      </button>
+    </div>
+
+    <button onclick="showScore()">
+      📊 Show Score
+    </button>
+
+    <div id="score" class="result">
+      Score will appear here.
+    </div>
+
+  </div>
+
+
+  <!-- About -->
+  <div class="card">
+    <h2>ℹ️ About Project</h2>
+
+    <p>
+      AI Study Assistant is a student learning project developed
+      using HTML, CSS and JavaScript.
+    </p>
+
+    <p>
+      The project helps students create short summaries,
+      explore AI & ML topics and practice through quizzes.
+    </p>
+
+    <p><b>Project Level:</b> 1st Year CSE / AI & ML</p>
+  </div>
+
+</div>
+
+<footer>
+  AI Study Assistant © 2026
+</footer>
+
+
+<script>
+
+let score = 0;
+let answered = {};
+
+
+function generateSummary() {
+
+  let text = document.getElementById("notes").value.trim();
+
+  if (text === "") {
+
+    document.getElementById("summary").innerHTML =
+      "⚠️ Please enter your study notes first.";
+
+    return;
+  }
+
+  let sentences = text.split(/[.!?]/)
+                      .map(s => s.trim())
+                      .filter(s => s.length > 0);
+
+  let important = sentences.slice(0, 3);
+
+  document.getElementById("summary").innerHTML =
+    "<h3>📚 Short Summary</h3>" +
+    important.map(s => "• " + s).join("<br>");
+}
+
+
+function clearNotes() {
+
+  document.getElementById("notes").value = "";
+
+  document.getElementById("summary").innerHTML =
+    "Your summary will appear here.";
+}
+
+
+function answer(question, correct, button) {
+
+  if (answered[question]) {
+    return;
+  }
+
+  answered[question] = true;
+
+  button.classList.add("selected");
+
+  if (correct) {
+    score++;
+  }
+}
+
+
+function showScore() {
+
+  document.getElementById("score").innerHTML =
+    "🎉 Your Score: " + score + " / 3";
+}
+
+</script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+</script>
+
+</body>
+</html>
+<link rel="manifest" href="manifest.json">
